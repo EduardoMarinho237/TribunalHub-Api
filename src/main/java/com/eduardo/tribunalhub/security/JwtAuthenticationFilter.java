@@ -29,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                   FilterChain filterChain) throws ServletException, IOException {
         
         final String authorizationHeader = request.getHeader("Authorization");
+        logger.info("Request URI: " + request.getRequestURI()); // Add request path logging
+        logger.info("Auth header: " + authorizationHeader);
 
         String username = null;
         String jwt = null;
@@ -37,14 +39,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             jwt = authorizationHeader.substring(7);
             try {
                 username = jwtUtil.extractUsername(jwt);
+                logger.info("Extracted username from token: " + username); // Add username logging
             } catch (Exception e) {
                 logger.error("Erro ao extrair username do token JWT: " + e.getMessage());
+                e.printStackTrace(); // Add stack trace for token extraction errors
             }
+        } else {
+            logger.warn("No Bearer token found in request"); // Add warning for missing token
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             try {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+                logger.info("Loaded user details for: " + username);
+                logger.info("User authorities: " + userDetails.getAuthorities());
 
                 if (jwtUtil.validateToken(jwt, userDetails)) {
                     UsernamePasswordAuthenticationToken authToken = 
@@ -52,10 +60,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             userDetails, null, userDetails.getAuthorities());
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    logger.info("Token validation successful - Authentication set in SecurityContext");
+                } else {
+                    logger.error("Token validation failed"); // Add token validation failure logging
                 }
             } catch (Exception e) {
-                logger.error("Erro na autenticação JWT: " + e.getMessage());
+                logger.error("Authentication error: " + e.getMessage());
+                e.printStackTrace(); // Add stack trace for authentication errors
             }
+        } else {
+            logger.warn("SecurityContext already contains authentication: " + 
+                (SecurityContextHolder.getContext().getAuthentication() != null)); // Add context check
         }
 
         filterChain.doFilter(request, response);

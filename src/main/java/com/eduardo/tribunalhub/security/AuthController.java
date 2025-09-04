@@ -1,7 +1,7 @@
 package com.eduardo.tribunalhub.security;
 
 import com.eduardo.tribunalhub.app.usuario.Usuario;
-import com.eduardo.tribunalhub.security.JwtUtil;
+import com.eduardo.tribunalhub.app.usuario.UsuarioRepository;
 import com.eduardo.tribunalhub.security.dto.LoginRequest;
 import com.eduardo.tribunalhub.security.dto.LoginResponse;
 import org.springframework.http.ResponseEntity;
@@ -18,14 +18,14 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
-    private final CustomUserDetailsService userDetailsService;
+    private final UsuarioRepository usuarioRepository;
 
     public AuthController(AuthenticationManager authenticationManager,
                          JwtUtil jwtUtil,
-                         CustomUserDetailsService userDetailsService) {
+                         UsuarioRepository usuarioRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @PostMapping("/login")
@@ -55,7 +55,7 @@ public class AuthController {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getTipoUsuario().name()
+                usuario.getCargo().name()
             );
 
             return ResponseEntity.ok(response);
@@ -77,16 +77,18 @@ public class AuthController {
                 
                 if (jwtUtil.validateToken(token)) {
                     String username = jwtUtil.extractUsername(token);
-                    String tipoUsuario = jwtUtil.extractTipoUsuario(token);
                     Long userId = jwtUtil.extractUserId(token);
                     
+                    // Get user details to return cargo
+                    Usuario usuario = usuarioRepository.findByEmail(username)
+                        .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
                     return ResponseEntity.ok(new LoginResponse(
                         token,
                         "Bearer",
                         userId,
-                        username,
-                        username,
-                        tipoUsuario
+                        usuario.getNome(),
+                        usuario.getEmail(),
+                        usuario.getCargo().name()
                     ));
                 }
             }

@@ -1,5 +1,7 @@
 package com.eduardo.tribunalhub.app.cliente;
 
+import java.util.Date;
+
 import com.eduardo.tribunalhub.app.usuario.Usuario;
 
 import jakarta.persistence.*;
@@ -37,5 +39,9 @@ public class Cliente {
     @ManyToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
+
+    @Temporal(TemporalType.DATE)
+    @Column(nullable = false, updatable = false)
+    private Date dataCriacao = new Date();
 
 }

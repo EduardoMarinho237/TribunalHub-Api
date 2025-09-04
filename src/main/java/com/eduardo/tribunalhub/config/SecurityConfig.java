@@ -55,14 +55,14 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(authz -> authz
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/usuarios/registrar").permitAll()
+                .requestMatchers("/api/usuarios/cargos").permitAll()
                 .requestMatchers("/uploads/**").permitAll()
-                .requestMatchers("/api/usuarios/**").hasAnyRole("COMUM", "ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/api/clientes/**").hasAnyRole("COMUM", "ADMIN", "SUPER_ADMIN")
-                .requestMatchers("/api/contratos/**").hasAnyRole("COMUM", "ADMIN", "SUPER_ADMIN")
+                .requestMatchers("/api/usuarios/**", "/api/clientes/**", "/api/contratos/**")
+                    .hasAnyRole("COMUM", "ADMIN", "SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())

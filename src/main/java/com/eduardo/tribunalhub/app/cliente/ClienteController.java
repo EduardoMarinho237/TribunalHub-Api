@@ -6,10 +6,13 @@ import org.springframework.web.bind.annotation.*;
 import com.eduardo.tribunalhub.validacao.Email;
 import com.eduardo.tribunalhub.validacao.ValidadorNaoExcluido;
 import java.util.List;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.eduardo.tribunalhub.security.CustomUserDetailsService.CustomUserPrincipal;
 
 @CrossOrigin(origins = "*")
 @RestController
-@RequestMapping("/api/clientes")
+@RequestMapping("api/clientes")
 public class ClienteController {
 
     private final ClienteService clienteService;
@@ -19,13 +22,24 @@ public class ClienteController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Cliente>> listarClientes() {
-        return ResponseEntity.ok(clienteService.listarClientesVisiveis());
+    public ResponseEntity<List<Cliente>> listarMeusClientes() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
+        Long userId = userPrincipal.getUsuario().getId();
+        return ResponseEntity.ok(clienteService.listarClientesPorUsuario(userId));
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerCliente(@RequestBody Cliente cliente) {
         try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
+            Long userId = userPrincipal.getUsuario().getId();
+            
+            if (!userId.equals(cliente.getUsuario().getId())) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Não autorizado");
+            }
+            
             Email.validar(cliente.getEmail());
             Cliente novoCliente = clienteService.registrarCliente(cliente);
             return ResponseEntity.ok(novoCliente);
@@ -70,11 +84,6 @@ public class ClienteController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-    }
-
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Cliente>> listarClientesPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(clienteService.listarClientesPorUsuario(usuarioId));
     }
 
     @GetMapping("/{id}")
