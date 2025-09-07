@@ -40,15 +40,12 @@ public class ClienteService {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         ValidadorNaoExcluido.validar(clienteExistente, Cliente::getVisivel, "Cliente");
+        Email.validar(clienteAtualizado.getEmail());
 
         if (clienteAtualizado.getNome() != null) {
             clienteExistente.setNome(clienteAtualizado.getNome());
         }
         if (clienteAtualizado.getEmail() != null) {
-            if (clienteRepository.findByEmail(clienteAtualizado.getEmail()).isPresent()) {
-                throw new IllegalArgumentException("Email já cadastrado");
-            }
-            Email.validar(clienteAtualizado.getEmail());
             clienteExistente.setEmail(clienteAtualizado.getEmail());
         }
         if (clienteAtualizado.getTelefone() != null) {
