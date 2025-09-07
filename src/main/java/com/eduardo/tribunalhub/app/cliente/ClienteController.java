@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import com.eduardo.tribunalhub.validacao.Email;
 import com.eduardo.tribunalhub.validacao.ValidadorNaoExcluido;
 import java.util.List;
+
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import com.eduardo.tribunalhub.security.CustomUserDetailsService.CustomUserPrincipal;
@@ -51,6 +53,7 @@ public class ClienteController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("@validadorAutorizacao.isUsuarioProprietarioDoCliente(#id)")
     public ResponseEntity<?> atualizarCliente(@PathVariable Long id, @RequestBody Cliente clienteAtualizado) {
         try {
             Cliente clienteExistente = clienteService.buscarClientePorId(id)
@@ -70,6 +73,7 @@ public class ClienteController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("@validadorAutorizacao.isUsuarioProprietarioDoCliente(#id)")
     public ResponseEntity<String> excluirCliente(@PathVariable Long id) {
         try {
             Cliente clienteExistente = clienteService.buscarClientePorId(id)
@@ -87,6 +91,7 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("@validadorAutorizacao.isUsuarioProprietarioDoCliente(#id)")
     public ResponseEntity<?> buscarClientePorId(@PathVariable Long id) {
         try {
             Cliente clienteExistente = clienteService.buscarClientePorId(id)
