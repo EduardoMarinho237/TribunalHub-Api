@@ -78,7 +78,7 @@ public class UsuarioController {
         }
     }
 
-    @PatchMapping("/{id}/foto")
+    @PutMapping("/{id}/foto")
     public ResponseEntity<?> atualizarFotoPerfil(@PathVariable Long id,
                                                  @RequestParam("foto") MultipartFile arquivo) {
         try {
