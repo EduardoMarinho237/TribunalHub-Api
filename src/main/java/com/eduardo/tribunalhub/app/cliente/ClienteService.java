@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.eduardo.tribunalhub.validacao.Email;
 import com.eduardo.tribunalhub.validacao.ValidadorNaoExcluido;
+import com.eduardo.tribunalhub.app.caso.CasoService;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,9 +13,11 @@ import java.util.Optional;
 public class ClienteService {
 
     private final ClienteRepository clienteRepository;
+    private final CasoService casoService;
 
-    public ClienteService(ClienteRepository clienteRepository) {
+    public ClienteService(ClienteRepository clienteRepository, CasoService CasoService) {
         this.clienteRepository = clienteRepository;
+        this.casoService = CasoService;
     }
 
     @Transactional(readOnly = true)
@@ -79,5 +82,11 @@ public class ClienteService {
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         ValidadorNaoExcluido.validar(cliente, Cliente::getVisivel, "Cliente");
         return Optional.of(cliente);
+    }
+
+    @Transactional(readOnly = true)
+    public Long buscarQuantidadeDeCasos(Long id) {
+        Long quantidadeCasos = casoService.contarCasosPorCliente(id);
+        return quantidadeCasos;
     }
 }

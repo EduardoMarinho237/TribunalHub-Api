@@ -28,7 +28,15 @@ public class ClienteController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
         Long userId = userPrincipal.getUsuario().getId();
-        return ResponseEntity.ok(clienteService.listarClientesPorUsuario(userId));
+
+        List<Cliente> clientes = clienteService.listarClientesPorUsuario(userId);
+
+        for (Cliente cliente : clientes) {
+            Long quantidadeCasos = clienteService.buscarQuantidadeDeCasos(cliente.getId());
+            cliente.setQuantidadeCasos(quantidadeCasos);
+        }
+
+        return ResponseEntity.ok(clientes);
     }
 
     @PostMapping("/register")

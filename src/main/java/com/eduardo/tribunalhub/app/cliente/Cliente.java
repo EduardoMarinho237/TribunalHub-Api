@@ -44,4 +44,7 @@ public class Cliente {
     @Column(nullable = false, updatable = false)
     private Date dataCriacao = new Date();
 
+    @Transient
+    private Long quantidadeCasos;
+
 }
