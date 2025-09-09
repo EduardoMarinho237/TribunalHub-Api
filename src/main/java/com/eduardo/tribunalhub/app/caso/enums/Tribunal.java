@@ -1,4 +1,4 @@
-package com.eduardo.tribunalhub.app.caso.model.enums;
+package com.eduardo.tribunalhub.app.caso.enums;
 
 public enum Tribunal {
     ESTADUAL,
