@@ -1,6 +1,8 @@
 package com.eduardo.tribunalhub.app.usuario;
 
 import com.eduardo.tribunalhub.app.contrato.Contrato;
+import com.eduardo.tribunalhub.app.usuario.enums.Cargo;
+import com.eduardo.tribunalhub.app.usuario.enums.TipoUsuario;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -33,7 +35,7 @@ public class Usuario {
     private String nome;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "cargo", nullable = false)
     private Cargo cargo;
 
     @Column(nullable = false)
@@ -45,17 +47,8 @@ public class Usuario {
     @JoinColumn(name = "contrato_id")
     private Contrato contrato;
 
-    public enum TipoUsuario {
-        COMUM,
-        ADMIN,
-        SUPER_ADMIN
+    public String getCargoDescricao() {
+        return cargo != null ? cargo.getDescricao() : null;
     }
-
-    public enum Cargo {
-        ADVOGADO,
-        DESENVOLVEDOR,
-        PRESTADOR_SERVICO,
-        ESTAGIARIO,
-        ASSISTENTE
-    }
+    
 }

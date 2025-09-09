@@ -101,9 +101,4 @@ public class UsuarioController {
         }
     }
 
-    @GetMapping("/cargos")
-    public ResponseEntity<Usuario.Cargo[]> listarCargos() {
-        return ResponseEntity.ok(Usuario.Cargo.values());
-    }
-
 }

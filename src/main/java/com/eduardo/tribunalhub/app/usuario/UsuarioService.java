@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.eduardo.tribunalhub.armazenamento.ArmazenamentoService;
 import com.eduardo.tribunalhub.validacao.Email;
 import com.eduardo.tribunalhub.validacao.ValidadorNaoExcluido;
+import com.eduardo.tribunalhub.app.usuario.enums.TipoUsuario;
 
 import java.util.Optional;
 import java.util.List;
@@ -39,7 +40,7 @@ public class UsuarioService {
         }
         Email.validar(usuario.getEmail());
         ValidadorSenha.validar(usuario.getSenha());
-        usuario.setTipoUsuario(Usuario.TipoUsuario.COMUM);
+        usuario.setTipoUsuario(TipoUsuario.COMUM);
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
         return usuarioRepository.save(usuario);
     }
