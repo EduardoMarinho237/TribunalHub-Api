@@ -60,6 +60,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/listar-cargos").permitAll()
                 .requestMatchers("/api/usuarios/registrar").permitAll()
                 .requestMatchers("/api/usuarios/cargos").permitAll()
                 .requestMatchers("/uploads/**").permitAll()

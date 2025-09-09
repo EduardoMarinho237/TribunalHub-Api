@@ -31,9 +31,11 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+            String emailMinusculo = loginRequest.getEmail().toLowerCase().trim();
+
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                    loginRequest.getEmail(),
+                    emailMinusculo,
                     loginRequest.getSenha()
                 )
             );
@@ -55,7 +57,7 @@ public class AuthController {
                 usuario.getId(),
                 usuario.getNome(),
                 usuario.getEmail(),
-                usuario.getCargo().name()
+                usuario.getCargoDescricao()
             );
 
             return ResponseEntity.ok(response);
@@ -79,8 +81,7 @@ public class AuthController {
                     String username = jwtUtil.extractUsername(token);
                     Long userId = jwtUtil.extractUserId(token);
                     
-                    // Get user details to return cargo
-                    Usuario usuario = usuarioRepository.findByEmail(username)
+                    Usuario usuario = usuarioRepository.findByEmail(username.toLowerCase())
                         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
                     return ResponseEntity.ok(new LoginResponse(
                         token,
@@ -88,7 +89,7 @@ public class AuthController {
                         userId,
                         usuario.getNome(),
                         usuario.getEmail(),
-                        usuario.getCargo().name()
+                        usuario.getCargoDescricao()
                     ));
                 }
             }

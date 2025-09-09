@@ -50,5 +50,9 @@ public class Usuario {
     public String getCargoDescricao() {
         return cargo != null ? cargo.getDescricao() : null;
     }
-    
+
+    public void setEmail(String email) {
+        this.email = email != null ? email.toLowerCase().trim() : null;
+    }
+
 }
