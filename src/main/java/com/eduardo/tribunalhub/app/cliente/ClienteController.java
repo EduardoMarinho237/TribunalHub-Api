@@ -9,11 +9,7 @@ import com.eduardo.tribunalhub.validacao.ValidadorAutorizacao;
 import com.eduardo.tribunalhub.validacao.ValidadorNaoExcluido;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import com.eduardo.tribunalhub.security.CustomUserDetailsService.CustomUserPrincipal;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -29,13 +25,9 @@ public class ClienteController {
         this.validadorAutorizacao = validadorAutorizacao;
     }
 
-    private Long getIdUsuarioLogado() {
-        return validadorAutorizacao.obterIdUsuarioLogado();
-    }
-
     @GetMapping
     public ResponseEntity<List<Cliente>> listarMeusClientes() {
-        Long idUsuarioLogado = getIdUsuarioLogado();
+        Long idUsuarioLogado = validadorAutorizacao.obterIdUsuarioLogado();
         List<Cliente> clientes = clienteService.listarClientesPorUsuario(idUsuarioLogado);
 
         for (Cliente cliente : clientes) {
@@ -49,7 +41,7 @@ public class ClienteController {
     @PostMapping("/register")
     public ResponseEntity<?> registerCliente(@RequestBody Cliente cliente) {
         try {
-            Long idUsuarioLogado = getIdUsuarioLogado();
+            Long idUsuarioLogado = validadorAutorizacao.obterIdUsuarioLogado();
             if (!idUsuarioLogado.equals(cliente.getUsuario().getId())) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message","Não autorizado"));
             }
@@ -68,7 +60,7 @@ public class ClienteController {
     @PreAuthorize("@validadorAutorizacao.isUsuarioProprietarioDoCliente(#id)")
     public ResponseEntity<?> atualizarCliente(@PathVariable Long id, @RequestBody Cliente clienteAtualizado) {
         try {
-            Long idUsuarioLogado = getIdUsuarioLogado();
+            Long idUsuarioLogado = validadorAutorizacao.obterIdUsuarioLogado();
             Cliente clienteExistente = clienteService.buscarClientePorId(id)
                     .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
             ValidadorNaoExcluido.validar(clienteExistente, Cliente::getVisivel, "Cliente");
