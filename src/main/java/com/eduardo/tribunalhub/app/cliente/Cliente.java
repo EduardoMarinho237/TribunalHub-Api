@@ -1,6 +1,7 @@
 package com.eduardo.tribunalhub.app.cliente;
 
 import java.util.Date;
+import org.hibernate.annotations.ColumnTransformer;
 
 import com.eduardo.tribunalhub.app.usuario.Usuario;
 
@@ -24,7 +25,8 @@ public class Cliente {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean visivel = true;
     
-    @Column(nullable = false, unique = true)
+    @ColumnTransformer(write = "lower(?)")
+    @Column(nullable = false, length = 100)
     private String email;
 
     @Column(nullable = false)
