@@ -1,5 +1,6 @@
 package com.eduardo.tribunalhub.app.cliente;
 
+import com.eduardo.tribunalhub.exception.EmailJaExistenteException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.eduardo.tribunalhub.validacao.Email;
@@ -26,12 +27,12 @@ public class ClienteService {
     }
 
     @Transactional
-    public Cliente registrarCliente(Cliente cliente) {
+    public Cliente registrarCliente(Cliente cliente, Long idUsuarioLogado) {
         if (cliente.getEmail() == null || cliente.getTelefone() == null || cliente.getNome() == null) {
             throw new IllegalArgumentException("Nome, email e telefone são obrigatórios");
         }
-        if (clienteRepository.findByEmail(cliente.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email já cadastrado");
+        if (clienteRepository.existsByEmailAndUsuarioId(cliente.getEmail(), idUsuarioLogado)) {
+            throw new EmailJaExistenteException();
         }
         Email.validar(cliente.getEmail());
         cliente.setVisivel(true);
@@ -39,14 +40,18 @@ public class ClienteService {
     }
 
     @Transactional
-    public Optional<Cliente> atualizarCliente(Long id, Cliente clienteAtualizado) {
+    public Optional<Cliente> atualizarCliente(Long id, Cliente clienteAtualizado, Long idUsuarioLogado, Long idCliente) {
         Cliente clienteExistente = clienteRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Cliente não encontrado"));
         ValidadorNaoExcluido.validar(clienteExistente, Cliente::getVisivel, "Cliente");
         Email.validar(clienteAtualizado.getEmail());
 
+
         if (clienteAtualizado.getNome() != null) {
             clienteExistente.setNome(clienteAtualizado.getNome());
+        }
+        if (clienteRepository.existsByEmailAndUsuarioIdAndIdNot(clienteAtualizado.getEmail(), idUsuarioLogado, idCliente)) {
+            throw new EmailJaExistenteException();
         }
         if (clienteAtualizado.getEmail() != null) {
             clienteExistente.setEmail(clienteAtualizado.getEmail());

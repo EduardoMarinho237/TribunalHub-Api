@@ -1,5 +1,6 @@
 package com.eduardo.tribunalhub.validacao;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import com.eduardo.tribunalhub.security.CustomUserDetailsService.CustomUserPrincipal;
@@ -17,7 +18,7 @@ public class ValidadorAutorizacao {
     public boolean isUsuarioProprietarioDoCliente(Long clienteId) {
         CustomUserPrincipal userPrincipal = obterUsuarioLogado();
         Long userId = userPrincipal.getUsuario().getId();
-        
+
         Optional<Cliente> cliente = clienteService.buscarClientePorId(clienteId);
         return cliente.isPresent() && cliente.get().getUsuario().getId().equals(userId);
     }
@@ -26,5 +27,11 @@ public class ValidadorAutorizacao {
         return (CustomUserPrincipal) SecurityContextHolder.getContext()
                 .getAuthentication()
                 .getPrincipal();
+    }
+
+    public Long obterIdUsuarioLogado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserPrincipal userPrincipal = (CustomUserPrincipal) authentication.getPrincipal();
+        return userPrincipal.getUsuario().getId();
     }
 }
